@@ -65,7 +65,17 @@ pip install numpy pandas scikit-learn torch casadi do-mpc plotly tabulate \
 ```
 
 > **Note:** If your IPOPT or HSL libraries live in a different location, edit
-> `template_mpc.py` accordingly (`mpc.settings.nlpsol_opts['ipopt.hsllib']`).
+> `template_mpc.py` accordingly (`mpc.settings.nlpsol_opts['ipopt.hsllib']`). 
+
+## Useful resources
+
+- [do-mpc documentation](https://www.do-mpc.com/en/latest)
+- [CasADi documentation](https://web.casadi.org/docs)
+- [HSL MA27 download request](https://www.hsl.rl.ac.uk/download/MA27/1.0.0/a)
+
+  > The MUMPS linear solver bundled with IPOPT is an open alternative that
+  > requires no download request, but expect noticeably slower solve times than
+  > MA27 for the MPC problem and feasibility recovery strategy.
 
 ## Data
 
@@ -150,40 +160,3 @@ python Main.py
   renderers. Saved artifacts (PyTorch checkpoints, scaler pickles, HTML plots)
   reside in the corresponding `results/` subdirectories.
 
-## Contributing
-
-1. Fork the repository and create a feature branch.
-2. Ensure new scripts follow the existing structure (configuration block,
-   logging setup, reproducible randomness using seeded references).
-3. Update documentation and add tests or example notebooks when relevant.
-4. Run the affected scripts to verify they execute without errors.
-
-## Using this README in your own GitHub repository
-
-To publish this documentation in another repository:
-
-1. **Copy the file.** Download `README.md` or copy its contents into the target
-   project. If you clone this repo alongside your project you can run:
-   ```bash
-   cp /path/to/forging-control/README.md /path/to/your-repo/README.md
-   ```
-2. **Review and customize.** Update names, paths, and instructions so they match
-   the structure of your project. Remove sections that are not applicable and
-   add any repository-specific notes.
-3. **Commit the README.** Stage and commit the file in your repository:
-   ```bash
-   cd /path/to/your-repo
-   git add README.md
-   git commit -m "Add documentation for forging-control workflows"
-   ```
-4. **Push to GitHub.** Push your branch and open a pull request or merge to the
-   default branch:
-   ```bash
-   git push origin <branch-name>
-   ```
-
-Once the change reaches the default branch, GitHub automatically renders the
-README on the repository home page. No additional import step is required.
-
-Feel free to open issues for questions about the forging model, MPC tuning, or
-neural surrogate training.
