@@ -160,3 +160,18 @@ python Main.py
   renderers. Saved artifacts (PyTorch checkpoints, scaler pickles, HTML plots)
   reside in the corresponding `results/` subdirectories.
 
+## Citation
+
+If you use this work, please cite:
+
+```bibtex
+@inproceedings{Martin2025,
+  author     = {Martin Xavier, Daniel and Chamoin, Ludovic and Fribourg, Laurent},
+  title      = {{Data-driven {MPC} for Real-time Control of an Open-die Forging Problem}},
+  booktitle  = {{Proceedings of the 2025 European Control Conference}},
+  year       = {2025},
+  month      = Jun,
+  location   = {Thessaloniki, Greece},
+  eprinttype = {hal},
+  eprint     = {hal-05210726}
+}
