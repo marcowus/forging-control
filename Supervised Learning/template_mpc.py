@@ -27,8 +27,7 @@ def template_mpc(model, silence_solver = False, do_feasibility = False):
     mpc.settings.t_step    = 0.001
     mpc.settings.store_full_solution =  True
     mpc.settings.nlpsol_opts = {
-        'ipopt.linear_solver': 'MA27', 
-        'ipopt.hsllib': '/home/martinxavier/coinhsl/.libs/libcoinhsl.so'
+        'ipopt.linear_solver': 'mumps'
     }
 
     if silence_solver:

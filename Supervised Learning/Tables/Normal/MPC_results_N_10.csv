@@ -1,2 +1,2 @@
-  	      MAE	    RMSE	      R2	  Command	  Mean_time	  Std_time	  Median_time	  25_perc	  75_perc
- 0	0.0456429	0.156401	0.910998	 0.166877	    7.11414	   47.1021	      3.27814	  2.70504	  4.03297
+	     MAE	    RMSE	      R2	  Command	  Mean_time	  Std_time	  Median_time	  25_perc	  75_perc
+ 0	0.045209	0.150244	0.906169	 0.162946	    46.5435	   531.639	      15.4016	  13.5935	  16.5457
