@@ -1234,7 +1234,7 @@ class NeuralNetwork:
                     dataset_ref[idx,t] = ref
                 
                     # Add commands to trajectory
-                    dataset_u[idx,t] = u0
+                    dataset_u[idx,t] = u0.item()
 
                     if sol:
                         # Add optimization results to trajectory
@@ -1911,16 +1911,17 @@ class MPC:
                     dataset_Fd[idx,t]  = controller.data['_aux'][-1,1]
                 
                     # Add commands to trajectory
-                    dataset_u[idx,t] = u0
+                    dataset_u[idx,t] = u0.item()
 
                     # Add optimization variables to trajectory
-                    # dataset_iter[idx,t]     = controller.solver_stats['iter_count']
-                    # dataset_mu[idx,t]       = controller.solver_stats['iterations']['mu'][-1]
-                    # dataset_obj[idx,t]      = controller.solver_stats['iterations']['obj'][-1]
-                    # dataset_reg_size[idx,t] = controller.solver_stats['iterations']['regularization_size'][-1]
-                    # dataset_d_norm[idx,t]   = controller.solver_stats['iterations']['d_norm'][-1]
-                    # dataset_inf_du[idx,t]   = controller.solver_stats['iterations']['inf_du'][-1]
-                    # dataset_inf_pr[idx,t]   = controller.solver_stats['iterations']['inf_pr'][-1]
+                    dataset_iter[idx,t]     = controller.solver_stats['iter_count']
+                    if 'iterations' in controller.solver_stats:
+                        dataset_mu[idx,t]       = controller.solver_stats['iterations']['mu'][-1]
+                        dataset_obj[idx,t]      = controller.solver_stats['iterations']['obj'][-1]
+                        dataset_reg_size[idx,t] = controller.solver_stats['iterations']['regularization_size'][-1]
+                        dataset_d_norm[idx,t]   = controller.solver_stats['iterations']['d_norm'][-1]
+                        dataset_inf_du[idx,t]   = controller.solver_stats['iterations']['inf_du'][-1]
+                        dataset_inf_pr[idx,t]   = controller.solver_stats['iterations']['inf_pr'][-1]
 
                 # Set the initial command
                 controller.u0 = 0.0  # MPC 

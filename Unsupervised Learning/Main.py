@@ -19,7 +19,7 @@ from torch.utils.data import DataLoader  # DataLoaders
 from Functions import (Data, NeuralNetwork, MPC, FNNModel, LSTMModel, MPCLoss, FeasibilityRecovery, Graphics)
 
 # Notification
-from notifypy import Notify
+# from notifypy import Notify
 
 # do-mpc    
 import do_mpc
@@ -36,7 +36,10 @@ import logging
 
 # Get the device in which the network is trained
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print(f"Using device: {torch.cuda.get_device_name(0)} ({device})")
+if torch.cuda.is_available():
+    print(f"Using device: {torch.cuda.get_device_name(0)} ({device})")
+else:
+    print(f"Using device: ({device})")
 
 # ----------------------------------------------------------------
 # LOGGING
@@ -66,7 +69,7 @@ enable_training    = True   # Training flag
 enable_feasibility = False   # Feasibility Recovery flag
 
 # Graphics 
-show_plots      = False   # Graphics flag
+show_plots      = True   # Graphics flag
 show_comparison = True    # Comparison flag
 
 # ---------------------------------------------------------------
@@ -74,12 +77,12 @@ show_comparison = True    # Comparison flag
 # ----------------------------------------------------------------
 
 T_TRAJ = 300   # Trajectory period
-N_TRAJ = 15    # Number of trajectories (15)
+N_TRAJ = 2     # Number of trajectories (15)
 N_SIM  = 1     # Number of closed-loop simulations
 
 # Hyperparameters
 TOTAL_BATCH_SIZE = 150          # Total batch size
-N_EPOCHS         = 150          # Number of epochs
+N_EPOCHS         = 20           # Number of epochs
 LEARNING_RATE    = 0.0001       # Learning rate
 
 # Process noise std per state
@@ -134,8 +137,18 @@ for sim in range(N_SIM):
     # ---------------------------------------------------------------
     # MODEL - LSTM
     # ----------------------------------------------------------------
-    with open(f"Model_NN/results/NN_model_data.bin", "rb") as f: 
-        NN_data = pickle.load(f)     
+    # with open(f"Model_NN/results/NN_model_data.bin", "rb") as f:
+    #     NN_data = pickle.load(f)
+    # NN_data = torch.load(f"Model_NN/results/NN_model_data.bin", map_location=device, weights_only=False)
+
+    class NN_Data_Dummy:
+        def __init__(self):
+            self.input_dim = 5
+            self.output_dim = 4
+            self.hidden_dim = 50
+            self.width_dim = 3
+
+    NN_data = NN_Data_Dummy()
 
     # Model Definition
     simulator_LSTM = LSTMModel(NN_data.input_dim, NN_data.hidden_dim, NN_data.output_dim, NN_data.width_dim)
@@ -145,8 +158,14 @@ for sim in range(N_SIM):
         'output':    pickle.load(open(f'Model_NN/results/scaler_model_output' + add_to_file + '.pkl', 'rb'))
     }
 
+    # Fix for sklearn version mismatch
+    if not hasattr(model_scalers['input'], 'clip'):
+        model_scalers['input'].clip = False
+    if not hasattr(model_scalers['output'], 'clip'):
+        model_scalers['output'].clip = False
+
     # Get parameters (weights and bias) from a trained network
-    simulator_LSTM.load_state_dict(torch.load(f'Model_NN/results/model_NN' + add_to_file + '.pt'))
+    simulator_LSTM.load_state_dict(torch.load(f'Model_NN/results/model_NN' + add_to_file + '.pt', map_location=device))
 
     # ---------------------------------------------------------------
     # CONTROLLER - NN
@@ -393,7 +412,7 @@ for sim in range(N_SIM):
                 {'x_label': 'Time [s]', 'y_label': 'Log Loss', 'row': 2, 'col': 1, 'y_kwargs': {'type': 'log'}}]
 
         # Graphic
-        Graphics.plot(data, axis, rows = 2, cols = 1, tab_title = 'Loss', height = 1000, subplot_titles = ["Loss", "Logarithmic Loss"])
+        Graphics.plot(data, axis, rows = 2, cols = 1, tab_title = 'Loss', height = 1000, subplot_titles = ["Loss", "Logarithmic Loss"], show=False, save_fig=True)
 
         
     # ----------------------------------------------------------------
@@ -413,7 +432,7 @@ for sim in range(N_SIM):
         axis = [{'x_label': 'Time [s]', 'y_label': 'Command'}]
 
         # Graphic
-        Graphics.plot(data, axis, title = f"Test (N = {N})", tab_title = 'Test', height = 1100)
+        Graphics.plot(data, axis, title = f"Test (N = {N})", tab_title = 'Test', height = 1100, show=False, save_fig=True)
 
     " ----------------------------------------------------------- "
     "                       MPC SIMULATION                        "
@@ -505,7 +524,7 @@ for sim in range(N_SIM):
 
         # Graphic
         Graphics.plot(data, axis, rows = 3, cols = 2, tab_title = 'MPC', height = 1100,
-                      subplot_titles = ["Deformation", "Deformation Speed", "Pressure (p1)", "Pressure (p2)", "Valve Displacement", "Command"])
+                      subplot_titles = ["Deformation", "Deformation Speed", "Pressure (p1)", "Pressure (p2)", "Valve Displacement", "Control Input"], show=False, save_fig=True)
 
     # ----------------------------------------------------------------
     # PLOT - MPC + SLIDER
@@ -553,7 +572,7 @@ for sim in range(N_SIM):
 
         # Graphic
         Graphics.plot(data, axis, tab_title = "MPC + Slider", rows = 3, cols = 2, slider_info = slider_info, height = 1100, width = 2000,
-                      subplot_titles = ["Deformation", "Deformation Speed", "Pressure (p1)", "Pressure (p2)", "Valve Displacement", "Command"])
+                      subplot_titles = ["Deformation", "Deformation Speed", "Pressure (p1)", "Pressure (p2)", "Valve Displacement", "Command"], show=False, save_fig=True)
 
     " ----------------------------------------------------------- "
     "                        NN SIMULATION                        "
@@ -729,7 +748,7 @@ for sim in range(N_SIM):
 
         # Graphic
         Graphics.plot(data, axis, rows = 3, cols = 2, tab_title = 'NN', height = 1100,
-                      subplot_titles = ["Deformation", "Deformation Speed", "Pressure (p1)", "Pressure (p2)", "Valve Displacement", "Command"])
+                      subplot_titles = ["Deformation", "Deformation Speed", "Pressure (p1)", "Pressure (p2)", "Valve Displacement", "Command"], show=False, save_fig=True)
 
     # ----------------------------------------------------------------
     # PLOT - NN + SLIDER
@@ -788,7 +807,7 @@ for sim in range(N_SIM):
 
         # Graphic
         Graphics.plot(data, axis, rows = 3, cols = 2, tab_title = "NN + Slider", height = 1100, width = 2000, slider_info = slider_info,
-                      subplot_titles = ["Deformation", "Deformation Speed", "Pressure (p1)", "Pressure (p2)", "Valve Displacement", "Command"])
+                      subplot_titles = ["Deformation", "Deformation Speed", "Pressure (p1)", "Pressure (p2)", "Valve Displacement", "Command"], show=False, save_fig=True)
 
     # ----------------------------------------------------------------
     # PLOT - FEASIBILITY RECOVERY STATISTICS
@@ -837,7 +856,7 @@ for sim in range(N_SIM):
 
         # Graphic
         Graphics.plot(data, axis, rows = 3, cols = 2, tab_title = "Feasibility", height = 1100, width = 2000, slider_info = slider_info,
-                      subplot_titles = ["Iteration counter", "Step size", "Search direction norm", "Infeasibility", "Barrier parameter", "Objective Function"])
+                      subplot_titles = ["Iteration counter", "Step size", "Search direction norm", "Infeasibility", "Barrier parameter", "Objective Function"], show=False, save_fig=True)
 
 
     # ----------------------------------------------------------------
@@ -861,17 +880,17 @@ for sim in range(N_SIM):
         axis = [{'x_label': 'Time [s]', 'y_label': 'Speed [m/]'}]
 
         # Graphic
-        Graphics.plot(data, axis, tab_title = 'MPC vs NN', title = 'MPC vs NN', height = 1100)
+        Graphics.plot(data, axis, tab_title = 'MPC vs NN', title = 'MPC vs NN', height = 1100, show=False, save_fig=True)
 
     " ----------------------------------------------------------- "
     "              NOTIFICATION - END OF SIMULATION               "
     " ----------------------------------------------------------- "
         
-    notification = Notify()
-    notification.title   = f"Successful finished executing iteration !!! "
-    notification.message = f"Iteration {sim} completed !!!"
-    notification.audio   = "/home/martinxavier/Téléchargements/Notification Sound/sound2.wav"
-    notification.send(block=False)
+    # notification = Notify()
+    # notification.title   = f"Successful finished executing iteration !!! "
+    # notification.message = f"Iteration {sim} completed !!!"
+    # notification.audio   = "/home/martinxavier/Téléchargements/Notification Sound/sound2.wav"
+    # notification.send(block=False)
 
 # Test Results
 logger.info("\n-------- \nTEST STATS \n--------")

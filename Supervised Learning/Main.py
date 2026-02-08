@@ -24,7 +24,7 @@ from Functions import (Data,
                        Graphics)
 
 # Notification
-from notifypy import Notify
+# from notifypy import Notify
 
 # do-mpc    
 import do_mpc
@@ -41,7 +41,10 @@ import logging
 
 # Get the device in which the nerwork is trained
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print(f"Using device: {torch.cuda.get_device_name(0)} ({device})")
+if torch.cuda.is_available():
+    print(f"Using device: {torch.cuda.get_device_name(0)} ({device})")
+else:
+    print(f"Using device: ({device})")
 
 # ----------------------------------------------------------------
 # LOGGING
@@ -73,7 +76,7 @@ enable_training    = True   # Training flag
 enable_feasibility = False  # Feasibility Recovery flag
 
 # Graphics 
-show_plots      = False     # Graphics flag
+show_plots      = True     # Graphics flag
 show_comparison = True      # Comparison flag
 
 # ---------------------------------------------------------------
@@ -81,12 +84,12 @@ show_comparison = True      # Comparison flag
 # ----------------------------------------------------------------
 
 T_TRAJ = 300  # Trajectory period
-N_TRAJ = 15   # Number of trajectories (15)
+N_TRAJ = 2    # Number of trajectories (15)
 N_SIM  = 1    # Number of closed-loop simulations
 
 # Hyperparameters 
 BATCH_SIZE    = 256         # Batch size
-N_EPOCHS      = 1000        # Number of epochs
+N_EPOCHS      = 20          # Number of epochs
 LEARNING_RATE = 0.001       # Learning rate
 
 # Process noise std per state
@@ -348,7 +351,7 @@ for sim in range(N_SIM):
                 {'x_label': 'Time [s]', 'y_label': 'Log Loss', 'row': 2, 'col': 1, 'y_kwargs': {'type': 'log'}}]
 
         # Graphic
-        Graphics.plot(data, axis, rows = 2, cols = 1, tab_title = 'Loss', height = 1100, subplot_titles = ["Loss", "Logarithmic Loss"])
+        Graphics.plot(data, axis, rows = 2, cols = 1, tab_title = 'Loss', height = 1100, subplot_titles = ["Loss", "Logarithmic Loss"], show=False, save_fig=True)
 
     # ----------------------------------------------------------------
     # PLOT - TEST
@@ -367,7 +370,7 @@ for sim in range(N_SIM):
         axis = [{'x_label': 'Time [s]', 'y_label': 'Command'}]
 
         # Graphic
-        Graphics.plot(data, axis, title = f"Test (N = {N})", tab_title = 'Test', height = 1100)
+        Graphics.plot(data, axis, title = f"Test (N = {N})", tab_title = 'Test', height = 1100, show=False, save_fig=True)
 
     " ----------------------------------------------------------- "
     "                       MPC SIMULATION                        "
@@ -459,7 +462,7 @@ for sim in range(N_SIM):
 
         # Graphic
         Graphics.plot(data, axis, rows = 3, cols = 2, tab_title = 'MPC', height = 1100,
-                      subplot_titles = ["Deformation", "Deformation Speed", "Pressure (p1)", "Pressure (p2)", "Valve Displacement", "Control Input"])
+                      subplot_titles = ["Deformation", "Deformation Speed", "Pressure (p1)", "Pressure (p2)", "Valve Displacement", "Control Input"], show=False, save_fig=True)
 
     # ----------------------------------------------------------------
     # PLOT - MPC + SLIDER
@@ -507,7 +510,7 @@ for sim in range(N_SIM):
 
         # Graphic
         Graphics.plot(data, axis, tab_title = "MPC + Slider", rows = 3, cols = 2, slider_info = slider_info, height = 1100, width = 2000,
-                      subplot_titles = ["Deformation", "Deformation Speed", "Pressure (p1)", "Pressure (p2)", "Valve Displacement", "Command"])
+                      subplot_titles = ["Deformation", "Deformation Speed", "Pressure (p1)", "Pressure (p2)", "Valve Displacement", "Command"], show=False, save_fig=True)
 
     " ----------------------------------------------------------- "
     "                        NN SIMULATION                        "
@@ -682,7 +685,7 @@ for sim in range(N_SIM):
 
         # Graphic
         Graphics.plot(data, axis, rows = 3, cols = 2, tab_title = 'NN', height = 1100,
-                      subplot_titles = ["Deformation", "Deformation Speed", "Pressure (p1)", "Pressure (p2)", "Valve Displacement", "Command"])
+                      subplot_titles = ["Deformation", "Deformation Speed", "Pressure (p1)", "Pressure (p2)", "Valve Displacement", "Command"], show=False, save_fig=True)
 
     # ----------------------------------------------------------------
     # PLOT - NN + SLIDER
@@ -729,7 +732,7 @@ for sim in range(N_SIM):
 
         # Graphic
         Graphics.plot(data, axis, rows = 3, cols = 2, tab_title = "NN + Slider", height = 1100, width = 2000, slider_info = slider_info,
-                      subplot_titles = ["Deformation", "Deformation Speed", "Pressure (p1)", "Pressure (p2)", "Valve Displacement", "Command"])
+                      subplot_titles = ["Deformation", "Deformation Speed", "Pressure (p1)", "Pressure (p2)", "Valve Displacement", "Command"], show=False, save_fig=True)
 
     # ----------------------------------------------------------------
     # PLOT - FEASIBILITY RECOVERY STATISTICS
@@ -778,7 +781,7 @@ for sim in range(N_SIM):
 
         # Graphic
         Graphics.plot(data, axis, rows = 3, cols = 2, tab_title = "Feasibility", height = 1100, width = 2000, slider_info = slider_info,
-                      subplot_titles = ["Iteration counter", "Step size", "Search direction norm", "Infeasibility", "Barrier parameter", "Objective Function"])
+                      subplot_titles = ["Iteration counter", "Step size", "Search direction norm", "Infeasibility", "Barrier parameter", "Objective Function"], show=False, save_fig=True)
 
     # ----------------------------------------------------------------
     # PLOT - NN vs MPC
@@ -802,17 +805,17 @@ for sim in range(N_SIM):
         axis = [{'x_label': 'Time [s]', 'y_label': 'Speed [m/s]'}]
 
         # Graphic
-        Graphics.plot(data, axis, tab_title = 'MPC vs NN', title = 'MPC vs NN', height = 1100)
+        Graphics.plot(data, axis, tab_title = 'MPC vs NN', title = 'MPC vs NN', height = 1100, show=False, save_fig=True)
 
     " ----------------------------------------------------------- "
     "              NOTIFICATION - END OF SIMULATION               "
     " ----------------------------------------------------------- "
         
-    notification = Notify()
-    notification.title   = f"Successful finished executing iteration !!! "
-    notification.message = f"Iteration {sim} completed !!!"
-    notification.audio   = "/home/martinxavier/Téléchargements/Notification Sound/sound2.wav"
-    notification.send(block=False)
+    # notification = Notify()
+    # notification.title   = f"Successful finished executing iteration !!! "
+    # notification.message = f"Iteration {sim} completed !!!"
+    # notification.audio   = "/home/martinxavier/Téléchargements/Notification Sound/sound2.wav"
+    # notification.send(block=False)
 
 # Test Results
 logger.info("\n-------- \nTEST STATS \n--------")
@@ -859,7 +862,7 @@ Supervised_dataframe.to_csv('results/Supervised_dataframe.txt', sep='\t', index=
 "                 NOTIFICATION - END OF CODE                  "
 " ----------------------------------------------------------- "
     
-notification = Notify()
-notification.title = "Script Execution Completed"
-notification.audio = "/home/martinxavier/Téléchargements/Notification Sound/sound.wav"
-notification.send(block=False)
+# notification = Notify()
+# notification.title = "Script Execution Completed"
+# notification.audio = "/home/martinxavier/Téléchargements/Notification Sound/sound.wav"
+# notification.send(block=False)
